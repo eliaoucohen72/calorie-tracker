@@ -7,6 +7,7 @@ import TodaySummary from './components/TodaySummary';
 import HistoryDay from './components/HistoryDay';
 import HistoryChart from './components/HistoryChart';
 import { analyzeMeal, getToday, getHistory, deleteMeal } from './services/api';
+import FoodBrowser from './components/FoodBrowser';
 
 export default function App() {
   const [tab, setTab] = useState('today');
@@ -110,6 +111,12 @@ export default function App() {
         {tab === 'today' && (
           <>
             <TodaySummary totalJour={todayData.total_jour} />
+            <FoodBrowser
+              onFoodAdded={result => setTodayData(prev => ({
+                repas: [...prev.repas, result.repas],
+                total_jour: result.total_jour,
+              }))}
+            />
             <MealInput
               onAnalyze={handleAnalyze}
               loading={loading}

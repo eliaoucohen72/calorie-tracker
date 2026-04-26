@@ -44,6 +44,23 @@ export async function recalculateMeal(date, mealId) {
   return res.json();
 }
 
+export async function browseFoods(letter) {
+  const res = await fetch(`${BASE}/foods/browse?letter=${encodeURIComponent(letter)}`);
+  if (!res.ok) throw new Error('Erreur lors de la recherche');
+  return res.json();
+}
+
+export async function addFoodDirect(nom, quantite, unite) {
+  const res = await fetch(`${BASE}/foods/add-direct`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nom, quantite, unite }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.erreur || 'Erreur serveur');
+  return data;
+}
+
 export async function patchCalories(date, mealId, alimentIndex, calories) {
   const res = await fetch(`${BASE}/logs/patch-calories`, {
     method: 'POST',
