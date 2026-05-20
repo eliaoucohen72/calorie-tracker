@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { browseFoods, addFoodDirect } from '../services/api';
 import FoodImage from './FoodImage';
+import { useLang } from '../i18n/LangContext';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -8,6 +9,7 @@ function QuantityModal({ food, onConfirm, onCancel }) {
   const [quantite, setQuantite] = useState('100');
   const [unite, setUnite] = useState('g');
   const inputRef = useRef(null);
+  const { t } = useLang();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -37,7 +39,7 @@ function QuantityModal({ food, onConfirm, onCancel }) {
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="flex gap-2">
             <div className="flex-1">
-              <label className="text-xs text-gray-500 mb-1 block">Quantité</label>
+              <label className="text-xs text-gray-500 mb-1 block">{t.quantity}</label>
               <input
                 ref={inputRef}
                 type="number"
@@ -49,17 +51,17 @@ function QuantityModal({ food, onConfirm, onCancel }) {
               />
             </div>
             <div className="w-24">
-              <label className="text-xs text-gray-500 mb-1 block">Unité</label>
+              <label className="text-xs text-gray-500 mb-1 block">{t.unit}</label>
               <select
                 value={unite}
                 onChange={e => setUnite(e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
               >
-                <option value="g">g</option>
-                <option value="ml">ml</option>
-                <option value="pièce">pièce</option>
-                <option value="portion">portion</option>
-                <option value="tranche">tranche</option>
+                <option value="g">{t.unitG}</option>
+                <option value="ml">{t.unitMl}</option>
+                <option value="pièce">{t.unitPiece}</option>
+                <option value="portion">{t.unitPortion}</option>
+                <option value="tranche">{t.unitSlice}</option>
               </select>
             </div>
           </div>
@@ -70,13 +72,13 @@ function QuantityModal({ food, onConfirm, onCancel }) {
               onClick={onCancel}
               className="flex-1 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
             >
-              Annuler
+              {t.cancel}
             </button>
             <button
               type="submit"
               className="flex-1 py-2 rounded-lg bg-green-500 text-white text-sm font-medium hover:bg-green-600 transition-colors"
             >
-              Ajouter
+              {t.add}
             </button>
           </div>
         </form>
@@ -112,6 +114,7 @@ export default function FoodBrowser({ onFoodAdded }) {
   const [selectedFood, setSelectedFood] = useState(null);
   const [adding, setAdding] = useState(false);
   const [open, setOpen] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     if (!open) return;
@@ -126,7 +129,7 @@ export default function FoodBrowser({ onFoodAdded }) {
       const data = await browseFoods(letter);
       setFoods(data.products || []);
     } catch {
-      setError('Impossible de charger les aliments. Vérifiez votre connexion.');
+      setError(t.loadError);
     } finally {
       setLoading(false);
     }
@@ -153,7 +156,7 @@ export default function FoodBrowser({ onFoodAdded }) {
         className="w-full mb-4 py-3 rounded-xl border-2 border-dashed border-green-300 text-green-600 text-sm font-medium hover:border-green-400 hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
       >
         <span className="text-lg">🔤</span>
-        Parcourir les aliments par lettre
+        {t.browseFoodsByLetter}
       </button>
     );
   }
@@ -169,11 +172,10 @@ export default function FoodBrowser({ onFoodAdded }) {
       )}
 
       <div className="mb-4 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <span className="text-lg">🔤</span>
-            <span className="font-semibold text-gray-800 text-sm">Parcourir les aliments</span>
+            <span className="font-semibold text-gray-800 text-sm">{t.browseFoods}</span>
           </div>
           <button
             onClick={() => setOpen(false)}
@@ -183,7 +185,6 @@ export default function FoodBrowser({ onFoodAdded }) {
           </button>
         </div>
 
-        {/* Alphabet strip */}
         <div className="flex flex-wrap gap-1 px-3 py-2 border-b border-gray-100 bg-gray-50">
           {ALPHABET.map(letter => (
             <button
@@ -200,7 +201,6 @@ export default function FoodBrowser({ onFoodAdded }) {
           ))}
         </div>
 
-        {/* Food grid */}
         <div className="p-3">
           {loading && (
             <div className="grid grid-cols-4 gap-2">
@@ -219,7 +219,7 @@ export default function FoodBrowser({ onFoodAdded }) {
 
           {!loading && !error && foods.length === 0 && (
             <p className="text-sm text-gray-400 text-center py-6">
-              Aucun aliment trouvé pour « {selectedLetter} »
+              {t.noFoodFound(selectedLetter)}
             </p>
           )}
 
@@ -238,7 +238,7 @@ export default function FoodBrowser({ onFoodAdded }) {
 
         {adding && (
           <div className="px-4 py-2 text-center text-xs text-gray-400 animate-pulse border-t border-gray-100">
-            Ajout en cours...
+            {t.adding}
           </div>
         )}
       </div>

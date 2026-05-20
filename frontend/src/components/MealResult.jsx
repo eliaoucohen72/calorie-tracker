@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { patchCalories, addFoodToMeal, recalculateMeal } from '../services/api';
 import FoodImage from './FoodImage';
+import { useLang } from '../i18n/LangContext';
 
 function ImageModal({ nom, offImage, onClose }) {
+  const { t } = useLang();
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
@@ -15,7 +17,7 @@ function ImageModal({ nom, offImage, onClose }) {
         <FoodImage nom={nom} offImage={offImage} size="large" />
         <p className="text-sm font-medium capitalize text-gray-800">{nom}</p>
         <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
-          Fermer
+          {t.close}
         </button>
       </div>
     </div>
@@ -34,6 +36,7 @@ function AlimentCard({ aliment, index, mealId, date, onPatch, onAddToInput }) {
   const [manualCal, setManualCal] = useState('');
   const [saving, setSaving] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const { t } = useLang();
 
   async function handlePatch(e) {
     e.preventDefault();
@@ -66,7 +69,7 @@ function AlimentCard({ aliment, index, mealId, date, onPatch, onAddToInput }) {
                     type="button"
                     onClick={() => onAddToInput(aliment)}
                     className="font-medium text-sm capitalize text-left hover:text-green-700 hover:underline transition-colors"
-                    title="Ajouter à l'entrée"
+                    title={t.addToInput}
                   >
                     {aliment.nom}
                   </button>
@@ -76,7 +79,7 @@ function AlimentCard({ aliment, index, mealId, date, onPatch, onAddToInput }) {
                 <span className="text-xs text-gray-500">{aliment.quantite} {aliment.unite}</span>
                 {aliment.non_trouve && (
                   <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full border border-orange-200">
-                    Non trouvé
+                    {t.notFound}
                   </span>
                 )}
               </div>
@@ -90,9 +93,9 @@ function AlimentCard({ aliment, index, mealId, date, onPatch, onAddToInput }) {
             </div>
             {!aliment.non_trouve && aliment.calories != null && (
               <div className="mt-1.5 flex flex-wrap gap-1.5">
-                <MacroBadge label="Protéines" value={aliment.proteines} color="bg-blue-50 text-blue-700" />
-                <MacroBadge label="Glucides" value={aliment.glucides} color="bg-yellow-50 text-yellow-700" />
-                <MacroBadge label="Lipides" value={aliment.lipides} color="bg-red-50 text-red-700" />
+                <MacroBadge label={t.proteins} value={aliment.proteines} color="bg-blue-50 text-blue-700" />
+                <MacroBadge label={t.carbs} value={aliment.glucides} color="bg-yellow-50 text-yellow-700" />
+                <MacroBadge label={t.fats} value={aliment.lipides} color="bg-red-50 text-red-700" />
               </div>
             )}
             {aliment.non_trouve && (
@@ -102,7 +105,7 @@ function AlimentCard({ aliment, index, mealId, date, onPatch, onAddToInput }) {
                   min="0"
                   value={manualCal}
                   onChange={e => setManualCal(e.target.value)}
-                  placeholder="Calories (kcal)"
+                  placeholder={t.calories_kcal}
                   className="w-36 text-sm border border-orange-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-orange-400"
                 />
                 <button
@@ -110,7 +113,7 @@ function AlimentCard({ aliment, index, mealId, date, onPatch, onAddToInput }) {
                   disabled={saving || !manualCal}
                   className="text-xs px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:opacity-50"
                 >
-                  {saving ? '...' : 'Valider'}
+                  {saving ? '...' : t.validate}
                 </button>
               </form>
             )}
@@ -125,6 +128,7 @@ function AddFoodForm({ date, mealId, onAdded }) {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { t } = useLang();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -144,13 +148,13 @@ function AddFoodForm({ date, mealId, onAdded }) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-3 pt-3 border-t border-gray-100">
-      <p className="text-xs text-gray-400 mb-2">Ajouter un aliment à ce repas</p>
+      <p className="text-xs text-gray-400 mb-2">{t.addFoodToMeal}</p>
       <div className="flex gap-2">
         <input
           type="text"
           value={text}
           onChange={e => setText(e.target.value)}
-          placeholder="Ex : une banane, 30g de fromage…"
+          placeholder={t.foodPlaceholder}
           disabled={loading}
           className="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:bg-gray-100"
         />
@@ -164,7 +168,7 @@ function AddFoodForm({ date, mealId, onAdded }) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
             </svg>
-          ) : 'Ajouter'}
+          ) : t.addFood}
         </button>
       </div>
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
@@ -175,6 +179,7 @@ function AddFoodForm({ date, mealId, onAdded }) {
 export default function MealResult({ repas, date, onUpdated, onDelete, onAddToInput }) {
   const [expanded, setExpanded] = useState(true);
   const [recalcLoading, setRecalcLoading] = useState(false);
+  const { lang, t } = useLang();
 
   async function handlePatch(date, mealId, alimentIndex, calories) {
     const updated = await patchCalories(date, mealId, alimentIndex, calories);
@@ -192,6 +197,9 @@ export default function MealResult({ repas, date, onUpdated, onDelete, onAddToIn
     }
   }
 
+  const count = repas.aliments.length;
+  const itemLabel = count > 1 ? t.items : t.item;
+
   return (
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden mb-3">
       <div className="flex items-center">
@@ -201,7 +209,7 @@ export default function MealResult({ repas, date, onUpdated, onDelete, onAddToIn
         >
           <div>
             <div className="text-sm font-medium text-gray-800 truncate max-w-xs">{repas.description_originale}</div>
-            <div className="text-xs text-gray-400">{repas.heure} · {repas.aliments.length} aliment{repas.aliments.length > 1 ? 's' : ''}</div>
+            <div className="text-xs text-gray-400">{repas.heure} · {count} {itemLabel}</div>
           </div>
           <div className="flex items-center gap-3">
             <span className="font-bold text-green-700">{repas.total_calories} kcal</span>
@@ -216,7 +224,7 @@ export default function MealResult({ repas, date, onUpdated, onDelete, onAddToIn
         <button
           onClick={handleRecalculate}
           disabled={recalcLoading}
-          title="Recalculer le total"
+          title={t.recalculate}
           className="px-3 py-3 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors disabled:opacity-40 border-l border-gray-100"
         >
           <svg
@@ -249,12 +257,12 @@ export default function MealResult({ repas, date, onUpdated, onDelete, onAddToIn
           />
 
           <div className="flex justify-between items-center pt-2">
-            <p className="text-xs text-gray-400">Cliquer sur le nom · image pour agrandir</p>
+            <p className="text-xs text-gray-400">{t.clickHint}</p>
             <button
               onClick={() => onDelete(date, repas.id)}
               className="text-xs text-red-400 hover:text-red-600 transition-colors"
             >
-              Supprimer ce repas
+              {t.deleteMeal}
             </button>
           </div>
         </div>

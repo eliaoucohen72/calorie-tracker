@@ -1,4 +1,8 @@
+import { useLang } from '../i18n/LangContext';
+
 export default function Navigation({ tab, setTab }) {
+  const { t } = useLang();
+
   return (
     <nav className="flex border-b border-gray-200 mb-6">
       <button
@@ -9,7 +13,7 @@ export default function Navigation({ tab, setTab }) {
             : 'text-gray-500 hover:text-gray-700'
         }`}
       >
-        Aujourd'hui
+        {t.today}
       </button>
       <button
         onClick={() => setTab('history')}
@@ -19,7 +23,7 @@ export default function Navigation({ tab, setTab }) {
             : 'text-gray-500 hover:text-gray-700'
         }`}
       >
-        Historique
+        {t.history}
       </button>
     </nav>
   );

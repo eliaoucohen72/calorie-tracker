@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslate } from './hooks/useTranslate';
+import { useLang } from './i18n/LangContext';
 import Navigation from './components/Navigation';
 import MealInput from './components/MealInput';
 import MealResult from './components/MealResult';
@@ -19,7 +19,7 @@ export default function App() {
   const [inputText, setInputText] = useState('');
 
   const today = new Date().toISOString().slice(0, 10);
-  const { lang, toggle: toggleLang } = useTranslate();
+  const { lang, toggle: toggleLang, t } = useLang();
 
   const loadToday = useCallback(async () => {
     try {
@@ -91,17 +91,32 @@ export default function App() {
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Suivi Calories</h1>
-            <p className="text-xs text-gray-400">Analysez vos repas avec l'IA</p>
+            <h1 className="text-xl font-bold text-gray-900">{t.appTitle}</h1>
+            <p className="text-xs text-gray-400">{t.appSubtitle}</p>
           </div>
-          <button
-            onClick={toggleLang}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
-            title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
-          >
-            <span className="text-base leading-none">{lang === 'fr' ? '🇬🇧' : '🇫🇷'}</span>
-            {lang === 'fr' ? 'EN' : 'FR'}
-          </button>
+          <div className="flex items-center rounded-full border border-gray-200 overflow-hidden text-xs font-semibold">
+            <button
+              onClick={() => lang !== 'fr' && toggleLang()}
+              className={`px-3 py-1.5 transition-colors ${
+                lang === 'fr'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-300 hover:text-gray-500'
+              }`}
+            >
+              FR
+            </button>
+            <div className="w-px h-4 bg-gray-200" />
+            <button
+              onClick={() => lang !== 'en' && toggleLang()}
+              className={`px-3 py-1.5 transition-colors ${
+                lang === 'en'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-300 hover:text-gray-500'
+              }`}
+            >
+              EN
+            </button>
+          </div>
         </div>
       </header>
 
@@ -132,12 +147,12 @@ export default function App() {
 
             {todayData.repas.length === 0 ? (
               <div className="text-center text-gray-400 text-sm py-12">
-                Aucun repas enregistré aujourd'hui.<br />
-                Décrivez votre repas ci-dessus pour commencer.
+                {t.noMealsToday}<br />
+                {t.noMealsTodaySub}
               </div>
             ) : (
               <div>
-                <h2 className="text-sm font-medium text-gray-500 mb-3">Repas du jour</h2>
+                <h2 className="text-sm font-medium text-gray-500 mb-3">{t.mealsOfDay}</h2>
                 {[...todayData.repas].reverse().map(repas => (
                   <MealResult
                     key={repas.id}
@@ -158,10 +173,10 @@ export default function App() {
             {historyLoaded && Object.keys(history).length > 0 && (
               <HistoryChart history={history} />
             )}
-            <h2 className="text-sm font-medium text-gray-500 mb-3">7 derniers jours</h2>
+            <h2 className="text-sm font-medium text-gray-500 mb-3">{t.lastSevenDays}</h2>
             {!historyLoaded ? (
               <div className="text-center text-gray-400 text-sm py-8 animate-pulse">
-                Chargement de l'historique...
+                {t.loadingHistory}
               </div>
             ) : (
               Object.entries(history)
